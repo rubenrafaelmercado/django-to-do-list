@@ -1,0 +1,13 @@
+{
+    "name": "django_container",
+    "context": "..",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "app",
+    "remoteUser": "root",
+    "forwardPorts": [8000],
+    "settings": {
+      "terminal.integrated.shell.linux": null
+    },
+    "workspaceMount": "source=${localWorkspaceFolder}/src,target=/app,type=bind,consistency=delegated",
+    "workspaceFolder": "/app"
+}

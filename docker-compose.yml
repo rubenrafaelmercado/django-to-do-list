@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+    app:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        command: sleep infinity
+        user: root
+        volumes:
+          - ./src:/app
+        ports:
+          - 8000:8000
+        depends_on:
+            - mysql
+    mysql:
+        image: mysql:8
+        ports:
+            - 3306:3306
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: myRootPwd36
+            MYSQL_DATABASE: to_do_list
