@@ -1,4 +1,4 @@
-from .list_statuses import LIST_STATUSES
+from .task_statuses import TASK_STATUSES
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Task(models.Model):
 
     name = models.CharField(max_length=50)
-    status = models.CharField(max_length=1, default='T', choices=LIST_STATUSES)
+    status = models.CharField(max_length=1, default='T', choices=TASK_STATUSES)
     due_date_time = models.DateTimeField()
     description = models.CharField(max_length=300)
     comment = models.CharField(max_length=400)

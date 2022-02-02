@@ -1,41 +1,48 @@
 {% extends 'base.html'%}
 
-{% block title  %} To do list {% endblock%}
+{% block page_title  %} To do list {% endblock%}
 
 {% block body %}
 
-    <h1> {{ title }}</h1>
+    <h1> {{ page_title }}</h1>
 
-        {% if tasks  %}
-            <table class="table table-striped">
-                <thead>
-                <tr>                
-                    <th scope="col">Name jejej</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Created</th>
-                    <th scope="col">Due</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Admin task</th>
-                </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks  %}
-                        <tr>
-                            <td>{{task.name}}</td>
-                            <td>{{task.get_status_display}}</td>
-                            <td>{{task.created_date}}</td>                                    
-                            <td class="{% if task.is_expired %} danger{% endif %}">{{task.due_date_time}}</td>
-                            <td>{{task.description}}</td>
-                            <td><a href="{% url 'admin_task' task.id %}">admin</a></td>
-                        </tr>
-                    {% endfor %}    
-                </tbody>
-            </table>
-        {% else %}
-            <h3>There are no tasks yet.</h3>
-        {% endif %}
+    <h2  class=" title-validation-{{ messages.title.type }}">
+        {{ messages.title.text }}        
+    </h2>
+    <h2  class=" title-validation-{{ messages.secondary_title.type }}">
+        {{ messages.secondary_title.text }}
+    </h2>
 
-        <a href="{% url 'add_task' %}">Add a task</a>
+    {% if tasks  %}
+        <table class="table table-striped">
+            <thead>
+            <tr>                
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Created</th>
+                <th scope="col">Due</th>
+                <th scope="col">Description</th>
+                <th scope="col">Admin task</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks  %}
+                    <tr>
+                        <td>{{task.name}}</td>
+                        <td>{{task.get_status_display}}</td>
+                        <td>{{task.created_date}}</td>                                    
+                        <td class="{% if task.is_expired %} danger{% endif %}">{{task.due_date_time}}</td>
+                        <td>{{task.description}}</td>
+                        <td><a href="{% url 'admin_task' task.id %}">admin</a></td>
+                    </tr>
+                {% endfor %}    
+            </tbody>
+        </table>
+    {% else %}
+        <h3>There are no tasks yet.</h3>
+    {% endif %}
+
+    <a href="{% url 'add_task' %}">Add a task</a>
        
 
 {% endblock %}
