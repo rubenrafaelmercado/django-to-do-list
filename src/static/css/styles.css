@@ -2,6 +2,7 @@
     --danger: #DC3545;
     --warning: #FFC108;
     --success: #198754;
+    --secondary: #444444;
   }
 
   .danger{
@@ -25,9 +26,14 @@
     color: var(--warning);  
   }
 
+  .title-validation-secondary {
+    color: var(--secondary);
+  }
+
   .title-validation-danger,
   .title-validation-danger,
-  .title-validation-warning {
+  .title-validation-warning
+  .title-validation-secondary {
     font-size: 1.1rem;    
   }
 

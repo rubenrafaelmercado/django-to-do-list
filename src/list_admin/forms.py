@@ -81,4 +81,27 @@ class TaskAdminForm( forms.Form ):
             taskToUpdate.save()
         return taskToUpdate
 
+
+class UserTasksSearchForm( forms.Form ):
+    name = forms.CharField(required=False)    
+    description = forms.CharField(required=False)    
+    status = forms.CharField(required=False)
+
+    def clean_name(self):
+        data = self.cleaned_data["name"]
+        if len(data) > 30: data = data[0:30]        
+        return data
+
+    def clean_description(self):
+        data = self.cleaned_data["description"]
+        if len(data) > 30: data = data[0:30]        
+        return data
     
+    def clean_status(self):
+        data = self.cleaned_data["status"]
+        notValidStatus = True
+        statuses = TASK_STATUSES + ('A', 'All')
+        for status in TASK_STATUSES:        
+            if status[0] == data: notValidStatus = False 
+        if notValidStatus: data=''
+        return data    

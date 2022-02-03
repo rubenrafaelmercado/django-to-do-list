@@ -1,6 +1,6 @@
 import random
 from .models import Task
-from .forms import TaskAdminForm
+from .forms import TaskAdminForm, UserTasksSearchForm
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, HttpRequest
@@ -9,6 +9,62 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime, timezone, timedelta
 
 class TaskAdmin():
+
+    @login_required    
+    @require_http_methods(['GET','POST'])
+    def search_user_tasks( request ):
+        messages = {}
+        field_values={}
+        tasks = TaskAdmin.get_user_tasks_expired(request.user.id)
+        if not tasks:
+            messages['title'] = { 'type':'danger','text':'There are no tasks created yet'}
+        else:
+            if request.method == 'POST':            
+                form = UserTasksSearchForm(request.POST)
+                if form.is_valid():
+                    field_values = form.cleaned_data
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    status = form.cleaned_data['status']
+
+                    if name == '' and  description == '' and (status!='' and status!='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(status=status)
+                    elif name == '' and  description == '' and (status=='' or status=='A'):
+                        tasks = Task.objects.filter(user=request.user)                    
+                    elif name == '' and  description != '' and  (status=='' or status=='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(description__contains=description)
+                    elif name == '' and description != '' and (status!='' and status!='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(status=status) \
+                            & Task.objects.filter(description__contains=description)
+                    elif name != '' and  description == '' and  (status=='' or status=='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(name__contains=name)
+                    elif name != '' and  description == '' and  (status!='' and status!='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(name__contains=name) \
+                            & Task.objects.filter(status=status)
+                    elif name != '' and  description != '' and  (status=='' or status=='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(name__contains=name) \
+                            & Task.objects.filter(description__contains=description)
+                    elif name != '' and description != '' and  (status!='' and status!='A'):
+                        tasks = Task.objects.filter(user=request.user) \
+                            & Task.objects.filter(name__contains=name) \
+                            & Task.objects.filter(status=status) \
+                            & Task.objects.filter(description__contains=description)
+                
+                if not tasks:
+                    messages['title'] = { 'type':'secondary','text':'There are no tasks found'}
+                else:
+                    messages['title'] = { 'type':'success','text': 'It was found ' + str(len(tasks)) + ' tasks'}
+        
+        return render(request,'search_user_tasks.html', {'tasks':tasks, 'messages':messages, 'field_values':field_values})
+
+
+
 
     def get_user_tasks_expired( user_id ):
         tasks = Task.objects.filter(user=user_id)               
@@ -92,7 +148,7 @@ class TaskAdmin():
                     field_value = field.value()                
                     setattr(task,field.html_name, '')
                     if field_value:
-                        setattr(task,field.html_name, field.value())
+                        setattr(task,field.html_name, field_value)
             task.due_date_time = datetime.strptime(task.due_date_time, '%Y-%m-%dT%H:%M')
         return render(request , 'admin_task.html',
                     {'task': task, 'messages': messages},
