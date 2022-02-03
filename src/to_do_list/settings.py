@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import environ,os
+
+env = environ.Env(  DEBUG=(bool, True) )
+#environ.Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,14 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!v5!0j$gkc2pvsi-0wsscxt7w9rvehqy7!99(=wi#%0i@+1hav'
+SECRET_KEY = env('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [ env('ALLOWED_HOST_1')]
 
 # Application definition
 
@@ -78,9 +84,9 @@ WSGI_APPLICATION = 'to_do_list.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'to_do_list',
-        'USER': 'root',
-        'PASSWORD': 'myRootPwd36',
+        'NAME': env('DATABASE_1_NAME'),
+        'USER': env('DATABASE_1_USER'),
+        'PASSWORD': env('DATABASE_1_PASSWORD'),
         'HOST': 'mysql',
     }
 }
