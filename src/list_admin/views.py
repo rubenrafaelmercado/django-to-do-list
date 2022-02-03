@@ -1,19 +1,16 @@
-#from .forms import ListAdminForm
+import random
 from .models import Task
 from .forms import TaskAdminForm
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, HttpRequest
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from datetime import datetime
-
 from datetime import datetime, timezone, timedelta
-
 
 class TaskAdmin():
 
-
-    def get_user_tasks_with_expired_state( user_id ):
+    def get_user_tasks_expired( user_id ):
         tasks = Task.objects.filter(user=user_id)               
         def add_expired_state(tasks):
             now = datetime.now( timezone.utc )
@@ -32,95 +29,106 @@ class TaskAdmin():
         return tasks
     
     @login_required    
+    @require_http_methods(['GET'])
     def list_user_tasks( request ):
-        tasks = TaskAdmin.get_user_tasks_with_expired_state(request.user.id)
-        return render(request , 'show_user_tasks.html', {'tasks': tasks,'page_title' : 'To do list'})
+        tasks = TaskAdmin.get_user_tasks_expired(request.user.id)
+        messages = {}
+        if not tasks:
+            messages['secondary_title'] = { 'type':'danger','text':'There are no tasks to list'}
+        if 'feedback_message_type' in request.session and 'feedback_message_text' in request.session:            
+            messages['title'] = { 'type':request.session['feedback_message_type'],
+                                  'text':request.session['feedback_message_text']}
+            del request.session['feedback_message_type']
+            del request.session['feedback_message_text']
+        return render(request , 'show_user_tasks.html', {'tasks':tasks, 'messages':messages})
 
     
-    @login_required    
+    @login_required
+    @require_http_methods(['GET', 'POST'])    
     def admin_task( request, task_id=None  ):
-
-        page_title = 'Admin task'
-        messages = {}
-        
+        messages = {}        
         try:
             task = Task.objects.get(pk=task_id)                 
         except ObjectDoesNotExist:
-            messages['title'] = {'type':'danger','text':'This task does not exist'}
+            messages['title'] = {'type':'danger','text':'Task non-existent'}
             task = {}
             status_code = 400
         else:                            
             if task.user.id != request.user.id:
-                messages['title'] = {'type':'danger','text':'This task is not accessible'}
+                messages['title'] = {'type':'danger','text':'Task not accessible'}
                 task = {}
-                status_code = 400
-
-        if request.method == 'GET' and  task:
+                status_code = 400       
+        if request.method == 'GET' and  task:            
             status_code = 200
-        
+            if 'current_process' in request.session:
+                if request.session['current_process'] == 'add_task':
+                    del request.session['current_process']
+                    messages['title'] = {'type':'success', 'text':'Task created, complete its fields'}
+                    task.name = ''
+                    task.due_date_time = ''
+            form_fields = ['name', 'description', 'status', 'comment', 'due_date_time']
+            for field in form_fields:
+                messages[field] = {'texts':[], 'input_css_class':'', 'message_css_class':'d-none'}        
         if request.method == 'POST' and  task:
-            form = TaskAdminForm( task, request.user, request.POST)
-            if form.is_valid():                
-                messages['title'] = {'type': 'success', 'text': 'Task successfully updated'}                
+            form = TaskAdminForm( task, request.user, request.POST)            
+            if form.is_valid():                                
                 form.save( taskToUpdate=task )
                 status_code = 201
+                messages['title'] = {'type':'success', 'text':'Task updated'}
             else:
-                messages['title'] = {'type': 'danger', 'text': 'Please correct this errors'}
+                messages['title'] = {'type':'danger', 'text':'Please revise this data'}
                 status_code = 400            
                 field_values = {}
-                for field in form:
-                    error_messages = [] 
+                for field in form:                    
+                    form_messages = [] 
                     for error_message in field.errors:
-                        error_messages.append(error_message )
-                    if not error_messages:
-                        error_messages = ['']
-                    messages[field.html_name] = error_messages
-                    
+                        form_messages.append(error_message )
+                    messages[field.html_name]= {'input_css_class':'', 'message_css_class':'d-none', 'texts':[]}
+                    if form_messages:
+                        messages[field.html_name]= {
+                            'input_css_class':'is-invalid',
+                            'message_css_class':'invalid-feedback',
+                            'texts':form_messages}
                     field_value = field.value()                
                     setattr(task,field.html_name, '')
                     if field_value:
                         setattr(task,field.html_name, field.value())
             task.due_date_time = datetime.strptime(task.due_date_time, '%Y-%m-%dT%H:%M')
-
         return render(request , 'admin_task.html',
-                    {'task': task, 'page_title':page_title, 'messages': messages},
+                    {'task': task, 'messages': messages},
                     status = status_code 
                     )
-    
-    
-    @login_required    
-    def add_task( request ):
-        if request.method == 'POST':        
-            return HttpResponse(  'add'  )
-
-
-
-    
-    @login_required    
+        
+    @login_required
+    @require_http_methods(['POST'])
     def delete_task( request, task_id=None ):
         messages={}
         if request.method == 'POST':            
             try:
                 task = Task.objects.get(pk=task_id)                 
             except ObjectDoesNotExist:
-                messages['title'] = {'type':'danger','text':'The task to delete does not exist'}                 
+                messages['title'] = {'type':'danger','text':'Task non-existent'}                 
             else:                            
                 if task.user.id != request.user.id:
-                    messages['title'] = {'type':'danger','text':'The task to delete is not accessible'}                    
+                    messages['title'] = {'type':'danger','text':'Task not accessible'}                    
                 else:
                     task.delete()
-                    messages['title'] = {'type':'success','text':'Task deleted successfully'}            
+                    messages['title'] = {'type':'success','text':'Task deleted'}            
         else:
-            messages['title'] = {'type':'danger','text':'Method to delete do not permitted'}
-        tasks = TaskAdmin.get_user_tasks_with_expired_state(request.user.id)
-        return render(request ,
-                        'show_user_tasks.html', 
-                    {'tasks':tasks,'page_title':'To do list','messages':messages})
+            messages['title'] = {'type':'danger','text':'Method not permitted'}
+        request.session['feedback_message_type'] = messages['title']['type']
+        request.session['feedback_message_text'] = messages['title']['text']        
+        return redirect('show_user_tasks')
+        
+    
+    @login_required
+    @require_http_methods(['GET'])
+    def add_task( request ):
+        task = Task(name = 'New task ' + str(random.randrange(1000, 99999)),
+                    due_date_time = datetime.now( timezone.utc ),
+                    status = 'T', user = request.user)
+        task.save()
+        request.session['current_process'] = 'add_task'
+        return redirect('admin_task', task_id = task.id )
 
         
-
-
-
-
-
-    

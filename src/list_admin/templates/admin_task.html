@@ -1,0 +1,111 @@
+{% extends 'base.html'%}
+
+{% block body %}
+
+  <h1>Administrate task</h1>
+
+  <h2  class=" title-validation-{{ messages.title.type }}">
+        {{ messages.title.text }}        
+  </h2>
+  <h2  class=" title-validation-{{ messages.secondary_title.type }}">
+    {{ messages.secondary_title.text }}
+  </h2>
+
+    {% if task %}
+  
+        <form class="row g-3" action="{% url 'admin_task' task.id %}" method="POST">
+            {% csrf_token %}
+
+    
+            <div class="col-lg-7">
+                <label for="validationServer01" class="form-label">Name</label>
+                <input type="text" class="form-control {{messages.name.input_css_class}}" minlength="2" maxlength="50" name="name" id="id_name" value="{{task.name}}" required placeholder="Task name">
+                <div class="{{messages.name.message_css_class}}">
+                    {% for message in messages.name.texts %}        
+                        {{ message }}<br>
+                    {% endfor %}  
+                </div>
+            </div>
+            
+            <div class="col-lg-2">
+                <label for="" class="form-label">Status</label>
+                <select class="form-select {{messages.status.input_css_class}}" id="id_status" required aria-label="select example"  name="status" >              
+                <option value="T" {% if task.status == 'T' %}selected=""{% endif %}>To do</option>
+                <option value="P" {% if task.status == 'P' %}selected=""{% endif %}>In progress</option>
+                <option value="D" {% if task.status == 'D' %}selected=""{% endif %}>Done</option>
+                <option value="C" {% if task.status == 'C' %}selected=""{% endif %}>Closed</option>
+                </select>
+                <div class="{{messages.status.message_css_class}}">
+                    {% for message in messages.status.texts %}        
+                        {{ message }}<br>
+                    {% endfor %}  
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <label for="validationTextarea" class="form-label">Due</label>
+                <input type="datetime-local" class="form-control {{messages.due_date_time.input_css_class}}" name="due_date_time" autocomplete="text" min="{{task.created_date|date:"Y-m-d"}}T{{task.created_date|date:"H:i"}}"  value="{{task.due_date_time|date:"Y-m-d"}}T{{task.due_date_time|date:"H:i"}}" required  id="id_due_date_time" >
+                <div class="{{messages.due_date_time.message_css_class}}">
+                    {% for message in messages.due_date_time.texts %}        
+                        {{ message }}<br>
+                    {% endfor %}  
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <label for="validationServer02" class="form-label">Description</label>
+                <input type="text" name="description" class="form-control {{messages.description.input_css_class}}" maxlength="300" id="id_description" value="{{task.description}}" placeholder="Task description">
+                <div class="{{messages.description.message_css_class}}">
+                    {% for message in messages.description.texts %}        
+                        {{ message }}<br>
+                    {% endfor %}  
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <label for="validationTextarea" class="form-label">Comment</label>
+                <textarea  name="comment" class="form-control {{messages.comment.input_css_class}}" maxlength="400" id="id_comment" value="{{task.comment}}" placeholder="Task comments" >{{task.comment}}</textarea>
+                <div class="{{messages.comment.message_css_class}}">
+                    {% for message in messages.comment.texts %}        
+                        {{ message }}<br>
+                    {% endfor %}  
+                </div>
+            </div>
+        
+            <div class="col-12">
+                <a class="btn btn-danger" data-bs-toggle="collapse" href="#collapseDeleteButton" role="button" aria-expanded="false" aria-controls="collapseDeleteButton">
+                    Delete
+                </a> 
+                <a class="btn btn-outline-secondary" href="{% url 'show_user_tasks' %}" role="button">To do list</a>    
+                <a class="btn btn-outline-secondary" href="{% url 'add_task' %}" role="button">New task</a>
+                <button class="btn btn-primary" type="submit">Save</button> 
+                
+            </div>
+        </form>
+
+        <div class=" row mt-3 d-flex flex-row">
+            <div class="col-12">
+                <div class="collapse " id="collapseDeleteButton">
+                    <div class="d-flex flex-row">
+                        <form class="" action="{% url 'delete_task' task.id %}" method="POST">
+                            {% csrf_token %}
+                            <button  class="btn btn-danger" type="submit">Yes, delete this task</button>
+                        </form>
+                        <button class="btn btn-primary mx-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeleteButton" aria-expanded="false" aria-controls="collapseDeleteButton">
+                            No delete
+                        </button>   
+                    </div>
+                </div>    
+            </div>
+        </div>
+    
+    {% else %}
+        <div class=" row mt-3 d-flex flex-row">
+            <div class="col-12">
+                <a class="btn btn-outline-secondary" href="{% url 'show_user_tasks' %}" role="button">To do list</a> 
+            </div>
+        </div>
+    {% endif %}
+    
+{% endblock %}
+

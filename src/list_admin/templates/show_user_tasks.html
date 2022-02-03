@@ -4,7 +4,7 @@
 
 {% block body %}
 
-    <h1> {{ page_title }}</h1>
+    <h1>To do list</h1>
 
     <h2  class=" title-validation-{{ messages.title.type }}">
         {{ messages.title.text }}        
@@ -17,12 +17,12 @@
         <table class="table table-striped">
             <thead>
             <tr>                
-                <th scope="col">Name</th>
+                <th scope="col">Task name</th>
                 <th scope="col">Status</th>
                 <th scope="col">Created</th>
                 <th scope="col">Due</th>
                 <th scope="col">Description</th>
-                <th scope="col">Admin task</th>
+                <th scope="col">Admin. task</th>
             </tr>
             </thead>
             <tbody>
@@ -38,11 +38,9 @@
                 {% endfor %}    
             </tbody>
         </table>
-    {% else %}
-        <h3>There are no tasks yet.</h3>
-    {% endif %}
+    {% endif %}    
 
-    <a href="{% url 'add_task' %}">Add a task</a>
+    <a class="btn btn-primary" href="{% url 'add_task' %}" role="button">Add new task</a>
        
 
 {% endblock %}
