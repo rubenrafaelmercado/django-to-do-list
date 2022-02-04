@@ -31,9 +31,11 @@
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'search_user_tasks' %}">Search tasks</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
+              {% if user.is_authenticated  %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'logout' %}">Logout | <span class="user-name">{{ user.username }}</span></a>
+                </li>
+              {% endif %}
             </ul>
           </div>
         </div>

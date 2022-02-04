@@ -9,7 +9,7 @@
   </h3>
   
     <div class="  col-12 col-md-8 col-lg-5 ">
-        <form class="row g-3 my-3 " action="{% url 'login' %}" method="POST">
+        <form class="row g-3 my-3 " action="{% url 'login' %}" method="POST"  id="id-login-form">
             {% csrf_token %}
 
             <input type="hidden" name="next" value="{{ next }}" />
@@ -18,8 +18,8 @@
 
 
             <div class="col-12">
-                <label for="id_user_name" class="form-label">User name</label>
-                <input type="text" class="form-control " maxlength="50" name="user_name" required id="id_user_name" value=""  placeholder="Your user name">
+                <label for="id_username" class="form-label">User name</label>
+                <input type="text" class="form-control " maxlength="50" name="username" required id="id_username" value=""  placeholder="Your user name">
                 
             </div>
             

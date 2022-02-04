@@ -26,24 +26,26 @@ class TaskAdminForm( forms.Form ):
         super(TaskAdminForm, self).__init__(*args, **kwargs)
         self.user = user
         self.task = task
-          
+    
     def clean_name(self):
-        data = self.cleaned_data["name"]        
+        data = self.cleaned_data["name"]
         if len(data) < 2 or len(data) > 50:
-            raise ValidationError('Name should be from 2 up to 50 characters')        
-                
-        if self.task.id:
+            raise ValidationError('Name should be from 2 up to 50 characters')
+        return data
+
+    def clean(self):
+        cleaned_data = super().clean()
+        data_name = self.cleaned_data["name"]
+        data_status = self.cleaned_data["status"]
+        repeatedTasks = {}
+        if data_status == 'T' or data_status == 'P':
             repeatedTasks = Task.objects.filter(user=self.user) \
-                        & Task.objects.filter(name=data) \
+                        & Task.objects.filter(name=data_name) \
                         & ( Task.objects.filter(status='P') | Task.objects.filter(status='T') ) \
                         & Task.objects.filter(~Q(id=self.task.id))
-        else:
-            epeatedTasks = Task.objects.filter(user=self.user) \
-                        & Task.objects.filter(name=data) \
-                        & ( Task.objects.filter(status='P') | Task.objects.filter(status='T') )
-        if len( repeatedTasks ) >= 1:
-            raise ValidationError('There is other task with same name and status "to do" or "in progress"')
-        return data
+        if len( repeatedTasks ) >= 1:            
+            self.add_error('name', 'There is other task with same name and status "to do" or "in progress"')
+        return data_name
 
     def clean_description(self):
         data = self.cleaned_data["description"]

@@ -35,7 +35,7 @@ DEBUG = True
 ALLOWED_HOSTS = [ env('ALLOWED_HOST_1')]
 
 LOGIN_REDIRECT_URL = '/to-do-list/show-list'
-LOGOUT_REDIRECT_URL = 'accounts/login'
+LOGOUT_REDIRECT_URL = '/accounts/login'
 
 
 # Application definition

@@ -63,3 +63,8 @@ h1{
 .navbar-light .navbar-nav .nav-link {
   color: var(--bs-primary);
 }
+
+.navbar-light .navbar-nav .nav-link .user-name{
+  font-size:80%;
+  color: #444444;
+}

@@ -64,8 +64,6 @@ class TaskAdmin():
         return render(request,'search_user_tasks.html', {'tasks':tasks, 'messages':messages, 'field_values':field_values})
 
 
-
-
     def get_user_tasks_expired( user_id ):
         tasks = Task.objects.filter(user=user_id)               
         def add_expired_state(tasks):
@@ -186,5 +184,7 @@ class TaskAdmin():
         task.save()
         request.session['current_process'] = 'add_task'
         return redirect('admin_task', task_id = task.id )
+
+
 
         
