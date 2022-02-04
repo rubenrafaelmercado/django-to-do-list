@@ -4,42 +4,43 @@
 
   <h1>Search tasks</h1>
 
-  <h2  class=" title-validation-{{ messages.title.type }}">
+  <h3  class=" title-validation-{{ messages.title.type }}">
         {{ messages.title.text }}        
-  </h2>
+  </h3>
   
-  
-    <form class="row g-3 my-5" action="{% url 'search_user_tasks' %}" method="POST">
-        {% csrf_token %}
+    <div class="  col-12  col-lg-8 ">
+        <form class="row g-3 my-3 " action="{% url 'search_user_tasks' %}" method="POST">
+            {% csrf_token %}
 
-        <div class="col-lg-7">
-            <label for="validationServer01" class="form-label">By name</label>
-            <input type="text" class="form-control {{messages.name.input_css_class}}" maxlength="35" name="name" id="id_name" value="{{field_values.name}}"  placeholder="Text to find in names">
+            <div class="col-lg-7">
+                <label for="validationServer01" class="form-label">By name</label>
+                <input type="text" class="form-control {{messages.name.input_css_class}}" maxlength="35" name="name" id="id_name" value="{{field_values.name}}"  placeholder="Text to find in names">
+                
+            </div>
             
-        </div>
-        
-        <div class="col-lg-5">
-            <label for="" class="form-label">By status</label>
-            <select class="form-select {{messages.status.input_css_class}}" id="id_status" required aria-label="select example"  name="status" >              
-            <option value="A" {% if field_values.status == 'A' %}selected=""{% endif %} >All</option>
-            <option value="T" {% if field_values.status == 'T' %}selected=""{% endif %} >To do</option>
-            <option value="P" {% if field_values.status == 'P' %}selected=""{% endif %} >In progress</option>
-            <option value="D" {% if field_values.status == 'D' %}selected=""{% endif %} >Done</option>
-            <option value="C" {% if field_values.status == 'C' %}selected=""{% endif %} >Closed</option>
-            </select>
-            
-        </div>        
+            <div class="col-lg-5">
+                <label for="" class="form-label">By status</label>
+                <select class="form-select {{messages.status.input_css_class}}" id="id_status" required aria-label="select example"  name="status" >              
+                <option value="A" {% if field_values.status == 'A' %}selected=""{% endif %} >All</option>
+                <option value="T" {% if field_values.status == 'T' %}selected=""{% endif %} >To do</option>
+                <option value="P" {% if field_values.status == 'P' %}selected=""{% endif %} >In progress</option>
+                <option value="D" {% if field_values.status == 'D' %}selected=""{% endif %} >Done</option>
+                <option value="C" {% if field_values.status == 'C' %}selected=""{% endif %} >Closed</option>
+                </select>
+                
+            </div>        
 
-        <div class="col-md-12">
-            <label for="validationServer02" class="form-label">By description</label>
-            <input type="text" name="description" class="form-control {{messages.description.input_css_class}}" maxlength="30" id="id_description" value="{{field_values.description}}" placeholder="Text to find in descriptions">
-        </div>               
-                   
-        <div class="col-md-12">
-            <button  class="btn btn-primary" type="submit">Search</button>
-        </div>
+            <div class="col-md-12">
+                <label for="validationServer02" class="form-label">By description</label>
+                <input type="text" name="description" class="form-control {{messages.description.input_css_class}}" maxlength="30" id="id_description" value="{{field_values.description}}" placeholder="Text to find in descriptions">
+            </div>               
                     
-    </form>
+            <div class="col-md-12">
+                <button  class="btn btn-primary" type="submit">Search</button>
+            </div>
+                        
+        </form>
+    </div>
 
     {% if tasks %}
         {% include "user_tasks.html"%}

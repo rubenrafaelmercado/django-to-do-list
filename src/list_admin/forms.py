@@ -101,7 +101,7 @@ class UserTasksSearchForm( forms.Form ):
         data = self.cleaned_data["status"]
         notValidStatus = True
         statuses = TASK_STATUSES + ('A', 'All')
-        for status in TASK_STATUSES:        
+        for status in statuses:        
             if status[0] == data: notValidStatus = False 
         if notValidStatus: data=''
         return data    

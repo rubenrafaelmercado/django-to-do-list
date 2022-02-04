@@ -5,39 +5,61 @@
     --secondary: #444444;
   }
 
-  .danger{
-    color: var(--danger) !important;
-  }
-  
-  .field-validation-danger {
-    color: var(--danger);
-    font-size: 0.875rem;
-  }
+.danger{
+  color: var(--danger) !important;
+}
 
-  .title-validation-danger {
-    color: var(--danger);    
-  }
+.field-validation-danger {
+  color: var(--danger);
+  font-size: 0.875rem;
+}
 
-  .title-validation-success {
-    color: var(--success);    
-  }
+.title-validation-danger {
+  color: var(--danger);    
+}
 
-  .title-validation-warning {
-    color: var(--warning);  
-  }
+.title-validation-success {
+  color: var(--success);    
+}
 
-  .title-validation-secondary {
-    color: var(--secondary);
-  }
+.title-validation-warning {
+  color: var(--warning);  
+}
 
-  .title-validation-danger,
-  .title-validation-danger,
-  .title-validation-warning
-  .title-validation-secondary {
-    font-size: 1.1rem;    
-  }
+.title-validation-secondary {
+  color: var(--secondary);
+}
 
-  select {
-    background-color: white;
-  }
+.title-validation-danger,
+.title-validation-success,
+.title-validation-warning
+.title-validation-secondary {
+  font-size: 1.3rem;    
+}
 
+select {
+  background-color: white;
+}
+
+
+.nav{
+  background-color: var(--bs-gray-100)
+}
+
+nav img{
+  width: 100%;
+  max-width: 110px;
+}
+
+.navbar {  
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+h1{
+  color: #555555;
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: var(--bs-primary);
+}

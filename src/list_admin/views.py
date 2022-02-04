@@ -119,7 +119,7 @@ class TaskAdmin():
             if 'current_process' in request.session:
                 if request.session['current_process'] == 'add_task':
                     del request.session['current_process']
-                    messages['title'] = {'type':'success', 'text':'Task created, complete its fields'}
+                    messages['title'] = {'type':'success', 'text':'New task created, complete it to finish'}
                     task.name = ''
                     task.due_date_time = ''
             form_fields = ['name', 'description', 'status', 'comment', 'due_date_time']

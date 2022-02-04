@@ -6,12 +6,12 @@
 
     <h1>To do list</h1>
 
-    <h2  class=" title-validation-{{ messages.title.type }}">
+    <h3  class=" title-validation-{{ messages.title.type }}">
         {{ messages.title.text }}        
-    </h2>
-    <h2  class=" title-validation-{{ messages.secondary_title.type }}">
+    </h3>
+    <h3  class=" title-validation-{{ messages.secondary_title.type }}">
         {{ messages.secondary_title.text }}
-    </h2>
+    </h3>
 
     {% if tasks  %}        
 
@@ -19,8 +19,12 @@
 
     {% endif %}    
 
-    <a class="btn btn-primary" href="{% url 'add_task' %}" role="button">Add new task</a>
-    <a class="btn btn-primary" href="{% url 'search_user_tasks' %}" role="button">Filter tasks</a>
+    <div class=" row my-2 d-flex flex-row">
+        <div class="col-12">
+            <a class="btn btn-primary" href="{% url 'add_task' %}" role="button">New task</a>
+            <a class="btn btn-primary" href="{% url 'search_user_tasks' %}" role="button">Filter tasks</a>
+        </div>
+    </div>
        
 
 {% endblock %}

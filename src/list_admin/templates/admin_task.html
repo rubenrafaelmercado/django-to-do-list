@@ -4,12 +4,12 @@
 
   <h1>Administrate task</h1>
 
-  <h2  class=" title-validation-{{ messages.title.type }}">
+  <h3  class=" title-validation-{{ messages.title.type }}">
         {{ messages.title.text }}        
-  </h2>
-  <h2  class=" title-validation-{{ messages.secondary_title.type }}">
+  </h3>
+  <h3  class=" title-validation-{{ messages.secondary_title.type }}">
     {{ messages.secondary_title.text }}
-  </h2>
+  </h3>
 
     {% if task %}
   
@@ -73,7 +73,7 @@
             </div>
         
             <div class="col-12">
-                <a class="btn btn-danger" data-bs-toggle="collapse" href="#collapseDeleteButton" role="button" aria-expanded="false" aria-controls="collapseDeleteButton">
+                <a class="btn btn-outline-danger" data-bs-toggle="collapse" href="#collapseDeleteButton" role="button" aria-expanded="false" aria-controls="collapseDeleteButton">
                     Delete
                 </a> 
                 <a class="btn btn-outline-secondary" href="{% url 'show_user_tasks' %}" role="button">To do list</a>    
@@ -89,9 +89,9 @@
                     <div class="d-flex flex-row">
                         <form class="" action="{% url 'delete_task' task.id %}" method="POST">
                             {% csrf_token %}
-                            <button  class="btn btn-danger" type="submit">Yes, delete this task</button>
+                            <button  class="btn btn-outline-danger" type="submit">Yes, delete this task</button>
                         </form>
-                        <button class="btn btn-primary mx-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeleteButton" aria-expanded="false" aria-controls="collapseDeleteButton">
+                        <button class="btn btn-outline-primary mx-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeleteButton" aria-expanded="false" aria-controls="collapseDeleteButton">
                             No delete
                         </button>   
                     </div>
