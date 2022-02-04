@@ -1,0 +1,40 @@
+{% extends 'base.html'%}
+
+{% block body %}
+
+  <h1>Login</h1>
+
+  <h3  class=" title-validation-{{ messages.title.type }}">
+        {{ messages.title.text }}        
+  </h3>
+  
+    <div class="  col-12 col-md-8 col-lg-5 ">
+        <form class="row g-3 my-3 " action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+
+            <input type="hidden" name="next" value="{{ next }}" />
+            <input type="hidden" name="remember" value="true">
+
+
+
+            <div class="col-12">
+                <label for="id_user_name" class="form-label">User name</label>
+                <input type="text" class="form-control " maxlength="50" name="user_name" required id="id_user_name" value=""  placeholder="Your user name">
+                
+            </div>
+            
+          
+            <div class="col-12">
+                <label for="id_password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control {{messages.password.input_css_class}}" required maxlength="50" id="id_password" value="" placeholder="Your password">
+            </div>               
+                    
+            <div class="col-md-12">
+                <button  class="btn btn-primary" type="submit">Login</button>
+            </div>
+                        
+        </form>
+    </div>
+    
+{% endblock %}
+

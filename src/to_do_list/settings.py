@@ -34,6 +34,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [ env('ALLOWED_HOST_1')]
 
+LOGIN_REDIRECT_URL = '/to-do-list/show-list'
+LOGOUT_REDIRECT_URL = 'accounts/login'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -74,8 +78,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'to_do_list.wsgi.application'
 
+WSGI_APPLICATION = 'to_do_list.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
