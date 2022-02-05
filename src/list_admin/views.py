@@ -18,7 +18,9 @@ class TaskAdmin():
         tasks = TaskAdmin.get_user_tasks_expired(request.user.id)
         if not tasks:
             messages['title'] = { 'type':'danger','text':'There are no tasks created yet'}
+            http_status = 202
         else:
+            http_status = 200
             if request.method == 'POST':            
                 form = UserTasksSearchForm(request.POST)
                 if form.is_valid():
@@ -58,10 +60,13 @@ class TaskAdmin():
                 
                 if not tasks:
                     messages['title'] = { 'type':'secondary','text':'There are no tasks found'}
+                    http_status = 202
                 else:
                     messages['title'] = { 'type':'success','text': 'It was found ' + str(len(tasks)) + ' tasks'}
-        
-        return render(request,'search_user_tasks.html', {'tasks':tasks, 'messages':messages, 'field_values':field_values})
+                    http_status = 200
+        return render(request,'search_user_tasks.html',
+                     {'tasks':tasks, 'messages':messages, 'field_values':field_values},
+                      status = http_status)
 
 
     def get_user_tasks_expired( user_id ):
@@ -89,12 +94,15 @@ class TaskAdmin():
         messages = {}
         if not tasks:
             messages['secondary_title'] = { 'type':'danger','text':'There are no tasks to list'}
+            http_status = 202
+        else:
+            http_status = 200
         if 'feedback_message_type' in request.session and 'feedback_message_text' in request.session:            
             messages['title'] = { 'type':request.session['feedback_message_type'],
                                   'text':request.session['feedback_message_text']}
             del request.session['feedback_message_type']
             del request.session['feedback_message_text']
-        return render(request , 'show_user_tasks.html', {'tasks':tasks, 'messages':messages})
+        return render(request , 'show_user_tasks.html', {'tasks':tasks, 'messages':messages}, status = http_status)
 
     
     @login_required
@@ -106,32 +114,33 @@ class TaskAdmin():
         except ObjectDoesNotExist:
             messages['title'] = {'type':'danger','text':'Task non-existent'}
             task = {}
-            status_code = 400
+            http_status = 400
         else:                            
             if task.user.id != request.user.id:
                 messages['title'] = {'type':'danger','text':'Task not accessible'}
                 task = {}
-                status_code = 400       
+                http_status = 403       
         if request.method == 'GET' and  task:            
-            status_code = 200
+            http_status = 200
             if 'current_process' in request.session:
                 if request.session['current_process'] == 'add_task':
                     del request.session['current_process']
                     messages['title'] = {'type':'success', 'text':'New task created, complete it to finish'}
                     task.name = ''
                     task.due_date_time = ''
+                    http_status = 201
             form_fields = ['name', 'description', 'status', 'comment', 'due_date_time']
             for field in form_fields:
                 messages[field] = {'texts':[], 'input_css_class':'', 'message_css_class':'d-none'}        
         if request.method == 'POST' and  task:
             form = TaskAdminForm( task, request.user, request.POST)            
             if form.is_valid():                                
-                form.save( taskToUpdate=task )
-                status_code = 201
+                form.save( taskToUpdate=task )                
                 messages['title'] = {'type':'success', 'text':'Task updated'}
+                http_status = 201
             else:
                 messages['title'] = {'type':'danger', 'text':'Please revise this data'}
-                status_code = 400            
+                http_status = 400            
                 field_values = {}
                 for field in form:                    
                     form_messages = [] 
@@ -148,10 +157,7 @@ class TaskAdmin():
                     if field_value:
                         setattr(task,field.html_name, field_value)
             task.due_date_time = datetime.strptime(task.due_date_time, '%Y-%m-%dT%H:%M')
-        return render(request , 'admin_task.html',
-                    {'task': task, 'messages': messages},
-                    status = status_code 
-                    )
+        return render(request , 'admin_task.html',{'task': task, 'messages': messages}, status=http_status)
         
     @login_required
     @require_http_methods(['POST'])
@@ -161,13 +167,16 @@ class TaskAdmin():
             try:
                 task = Task.objects.get(pk=task_id)                 
             except ObjectDoesNotExist:
-                messages['title'] = {'type':'danger','text':'Task non-existent'}                 
+                messages['title'] = {'type':'danger','text':'Task non-existent'}
+                http_status = 400                 
             else:                            
                 if task.user.id != request.user.id:
-                    messages['title'] = {'type':'danger','text':'Task not accessible'}                    
+                    messages['title'] = {'type':'danger','text':'Task not accessible'}
+                    http_status = 403                    
                 else:
                     task.delete()
-                    messages['title'] = {'type':'success','text':'Task deleted'}            
+                    messages['title'] = {'type':'success','text':'Task deleted'}
+                    http_status = 201            
         else:
             messages['title'] = {'type':'danger','text':'Method not permitted'}
         request.session['feedback_message_type'] = messages['title']['type']
