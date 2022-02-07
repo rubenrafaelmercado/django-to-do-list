@@ -187,7 +187,7 @@ class TaskAdmin():
     @login_required
     @require_http_methods(['GET'])
     def add_task( request ):
-        task = Task(name = 'New task ' + str(random.randrange(1000, 99999)),
+        task = Task(name = 'Unnamed task ' + str(random.randrange(1000, 99999)),
                     due_date_time = datetime.now( timezone.utc ),
                     status = 'T', user = request.user)
         task.save()

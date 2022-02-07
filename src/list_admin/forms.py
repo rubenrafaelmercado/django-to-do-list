@@ -27,16 +27,14 @@ class TaskAdminForm( forms.Form ):
         self.user = user
         self.task = task
     
-    def clean_name(self):
-        data = self.cleaned_data["name"]
-        if len(data) < 2 or len(data) > 50:
-            raise ValidationError('Name should be from 2 up to 50 characters')
-        return data
-
     def clean(self):
         cleaned_data = super().clean()
-        data_name = self.cleaned_data["name"]
-        data_status = self.cleaned_data["status"]
+        data_name = self.cleaned_data['name']
+        data_status = self.cleaned_data['status']
+
+        if len(data_name) < 2 or len(data_name) > 50:
+            raise ValidationError('Name should be from 2 up to 50 characters')
+
         repeatedTasks = {}
         if data_status == 'T' or data_status == 'P':
             repeatedTasks = Task.objects.filter(user=self.user) \
