@@ -1,12 +1,20 @@
 import random
+from .task_statuses import TASK_STATUSES
 from .models import Task
 from .forms import TaskAdminForm, UserTasksSearchForm
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+
+#from django.forms.models import model_to_dict
+from django.core import serializers
+
+
 from datetime import datetime, timezone, timedelta
+
+
 
 class TaskAdmin():
 
@@ -15,7 +23,7 @@ class TaskAdmin():
     def search_user_tasks( request ):
         messages = {}
         field_values={}
-        tasks = TaskAdmin.get_user_tasks_expired(request.user.id)
+        tasks = TaskAdmin.get_user_tasks_with_is_expired(request.user.id)
         if not tasks:
             messages['title'] = { 'type':'danger','text':'There are no tasks created yet'}
             http_status = 202
@@ -69,7 +77,7 @@ class TaskAdmin():
                       status = http_status)
 
 
-    def get_user_tasks_expired( user_id ):
+    def get_user_tasks_with_is_expired( user_id ):
         tasks = Task.objects.filter(user=user_id)               
         def add_expired_state(tasks):
             now = datetime.now( timezone.utc )
@@ -86,11 +94,11 @@ class TaskAdmin():
         else:
             tasks = {}        
         return tasks
-    
+        
     @login_required    
     @require_http_methods(['GET'])
-    def list_user_tasks( request ):
-        tasks = TaskAdmin.get_user_tasks_expired(request.user.id)
+    def show_user_tasks( request ):
+        tasks = TaskAdmin.get_user_tasks_with_is_expired(request.user.id)
         messages = {}
         if not tasks:
             messages['secondary_title'] = { 'type':'danger','text':'There are no tasks to list'}
@@ -103,8 +111,53 @@ class TaskAdmin():
             del request.session['feedback_message_type']
             del request.session['feedback_message_text']
         return render(request , 'show_user_tasks.html', {'tasks':tasks, 'messages':messages}, status = http_status)
-
     
+    def query_set_to_dictionary( query_set, attributes ):
+        dictionary_set = {}
+        for query_object in query_set:
+            dictionary = {}
+            for attribute in  attributes:                
+                dictionary[attribute] = getattr(query_object,attribute)
+            dictionary_set[query_object.id] = dictionary
+        return dictionary_set
+
+
+    @login_required    
+    @require_http_methods(['GET'])
+    def show_user_tasks_from_api_rest( request ): 
+        messages = {}      
+        http_status = 200
+        if 'feedback_message_type' in request.session and 'feedback_message_text' in request.session:            
+            messages['title'] = { 'type':request.session['feedback_message_type'],
+                                  'text':request.session['feedback_message_text']}
+            del request.session['feedback_message_type']
+            del request.session['feedback_message_text']
+        return render(request , 
+                    'show_user_tasks_from_api_rest.html',
+                    {'messages':messages, 'use_api_rest': True },
+                     status = http_status )
+
+
+    @login_required    
+    @require_http_methods(['GET'])
+    def get_user_tasks_api_rest( request ):                
+        tasks_query_set = TaskAdmin.get_user_tasks_with_is_expired(request.user.id)
+        if not tasks_query_set:
+            tasks_dictionary = { 'message':'There are no tasks to list'}
+            http_status = 202
+        else:
+            i = 0            
+            task_statuses_dictionary = dict(TASK_STATUSES)
+            for task in tasks_query_set:
+                tasks_query_set[i].status_description = task_statuses_dictionary[task.status]
+                tasks_query_set[i].due_date_time = task.due_date_time.strftime('%b-%d-%Y %H:%M')
+                tasks_query_set[i].created_date = task.created_date.strftime ('%b-%d-%Y')
+                i += 1
+            attributes = [ 'id', 'name', 'due_date_time', 'status_description', 'created_date', 'description', 'is_expired']
+            tasks_dictionary = TaskAdmin.query_set_to_dictionary( tasks_query_set, attributes )
+            http_status = 200
+        return JsonResponse(tasks_dictionary, status=http_status)
+       
     @login_required
     @require_http_methods(['GET', 'POST'])    
     def admin_task( request, task_id=None  ):
@@ -121,14 +174,7 @@ class TaskAdmin():
                 task = {}
                 http_status = 403       
         if request.method == 'GET' and  task:            
-            http_status = 200
-            if 'current_process' in request.session:
-                if request.session['current_process'] == 'add_task':
-                    del request.session['current_process']
-                    messages['title'] = {'type':'success', 'text':'New task created, complete it to finish'}
-                    task.name = ''
-                    task.due_date_time = ''
-                    http_status = 201
+            http_status = 200            
             form_fields = ['name', 'description', 'status', 'comment', 'due_date_time']
             for field in form_fields:
                 messages[field] = {'texts':[], 'input_css_class':'', 'message_css_class':'d-none'}        
@@ -187,12 +233,24 @@ class TaskAdmin():
     @login_required
     @require_http_methods(['GET'])
     def add_task( request ):
+        messages = {}
         task = Task(name = 'Unnamed task ' + str(random.randrange(1000, 99999)),
                     due_date_time = datetime.now( timezone.utc ),
                     status = 'T', user = request.user)
         task.save()
-        request.session['current_process'] = 'add_task'
-        return redirect('admin_task', task_id = task.id )
+        http_status = 302
+        
+        #request.session['current_process'] = 'add_task'
+        #return redirect('admin_task', task_id = task.id )
+       
+        messages['title'] = {'type':'success', 'text':'New task created, complete it to finish'}
+        task.name = ''
+        task.due_date_time = ''
+        
+        form_fields = ['name', 'description', 'status', 'comment', 'due_date_time']
+        for field in form_fields:
+            messages[field] = {'texts':[], 'input_css_class':'', 'message_css_class':'d-none'} 
+        return render(request , 'admin_task.html',{'task': task, 'messages': messages}, status = http_status) 
 
 
 

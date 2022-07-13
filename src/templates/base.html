@@ -7,6 +7,10 @@
 
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" >
     <link href="/static/css/styles.css" rel="stylesheet" >
+    
+    {% if use_api_rest %}
+      <script src="/static/js/axios.min.js"></script>
+    {% endif %}
 
     <title>{{title}}</title>
   </head>

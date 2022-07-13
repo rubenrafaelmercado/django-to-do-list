@@ -1,0 +1,66 @@
+
+<script>
+  axios.get('/to-do-list/get-tasks-api/')
+  .then(function (tasks) {
+    // handle success
+    if( tasks.status == 200){    
+        renderTable(tasks.data)
+    }else{
+        renderMessage (tasks.data.message)
+    }
+  })
+  .catch(function (error) {
+    // handle error
+    console.log(error);
+  })
+  .then(function () {
+    // always executed
+  });
+
+  function renderMessage(message){
+    let htmlCode = '<h3>' + message + '</h3>'
+    document.getElementById('content').innerHTML = htmlCode; 
+  }
+
+  function renderTable(tasks){
+    let htmlCode = `
+        <div class="table-responsive-xxl">
+            <table class="table table-striped">
+                <thead>
+                <tr>                
+                    <th scope="col">Task name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="d-none d-md-block" >Created</th>
+                    <th scope="col">Due</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Admin. task</th>
+                </tr>
+                </thead>
+                <tbody id="tasks_table_body">
+                </tbody>
+            </table>
+        </div>`
+    document.getElementById('content').innerHTML = htmlCode;
+    renderTableBody(tasks)
+  }
+
+  function renderTableBody(tasks){
+    let htmlCode = ''
+    let cssClass = ''
+    for (let x in tasks) {        
+        htmlCode += '<tr>'
+        htmlCode += '<td>' + tasks[x].name + '</td>'
+        htmlCode += '<td>' + tasks[x].status_description + '</td>'
+        htmlCode += '<td>' + tasks[x].created_date + '</td>'
+        cssClass = ''
+        if ( tasks[x].is_expired ) cssClass = 'danger'
+        htmlCode += '<td class="' + cssClass + '">' + tasks[x].due_date_time + '</td>'    
+        htmlCode += '<td>' + tasks[x].description + '</td>'
+        htmlCode += '<td>' + '<a href="/to-do-list/admin-task/' + tasks[x].id + '">admin</a>' + '</td>'
+        htmlCode += '</tr>'
+    }    
+    document.getElementById('tasks_table_body').innerHTML = htmlCode;
+  }
+</script>
+
+<div id="content"></div>

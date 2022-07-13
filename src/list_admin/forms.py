@@ -30,8 +30,12 @@ class TaskAdminForm( forms.Form ):
     def clean(self):
         cleaned_data = super().clean()
         data_name = self.cleaned_data['name']
-        data_status = self.cleaned_data['status']
 
+        if 'status' in self.cleaned_data:
+            data_status = self.cleaned_data['status']
+        else:
+            data_status = 'Not valid'
+                                         
         if len(data_name) < 2 or len(data_name) > 50:
             raise ValidationError('Name should be from 2 up to 50 characters')
 
@@ -60,10 +64,10 @@ class TaskAdminForm( forms.Form ):
     def clean_status(self):
         data = self.cleaned_data["status"]
         notValidStatus = True
-        for status in TASK_STATUSES:        
+        for status in TASK_STATUSES:
             if status[0] == data: notValidStatus = False 
-        if notValidStatus:
-            raise ValidationError('Status value is not valid')
+        if notValidStatus:           
+            raise ValidationError('Status value is not valid')              
         return data
 
     def clean_due_date_time(self):
