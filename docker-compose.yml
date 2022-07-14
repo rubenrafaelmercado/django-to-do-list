@@ -1,9 +1,21 @@
 version: '3.9'
 
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mysql:
+    driver: local
+  phpmyadmin:
+    driver: local
+
 services:
     app:
         build:
-            context: ./
+            context: ./docker/app
             dockerfile: Dockerfile
         command: sleep infinity
         user: root
@@ -13,11 +25,43 @@ services:
           - 8000:8000
         depends_on:
             - mysql
+        networks:
+        - backend
+   
     mysql:
-        image: mysql:8
-        ports:
-            - 3306:3306
-        restart: unless-stopped
-        environment:
-            MYSQL_ROOT_PASSWORD: myRootPwd36
-            MYSQL_DATABASE: to_do_list
+      build:
+        context: ./docker/mysql
+        args:
+          - MYSQL_VERSION=8.0.29
+      environment:
+        - MYSQL_DATABASE=to_do_list
+        - MYSQL_USER=default
+        - MYSQL_PASSWORD=myRootPwd36
+        - MYSQL_ROOT_PASSWORD=root
+        - TZ=UTC
+      volumes:
+        - ~/DockerProjects/python-course/to_do_list/mysql:/var/lib/mysql
+        - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      ports:
+        - 3306:3306
+      restart: unless-stopped
+      networks:
+        - backend
+
+
+    phpmyadmin:
+      build: ./docker/phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+        - MYSQL_USER=default
+        - MYSQL_PASSWORD=myRootPwd36
+        - MYSQL_ROOT_PASSWORD=root
+      ports:
+        - 8081:80
+      depends_on:
+        - mysql
+      networks:
+        - frontend
+        - backend
+
+
