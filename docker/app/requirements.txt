@@ -1,0 +1,5 @@
+django
+mysqlclient
+django-environ
+pytest-django
+Faker
