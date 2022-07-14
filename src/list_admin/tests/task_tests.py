@@ -139,7 +139,6 @@ def test_authenticated_authorized_user_admin_task_view_with_faker(client, make_f
     post_response = client.post( url, new_task_data )    
     assert get_response.status_code == 200 and post_response.status_code == 201
 
-"""
 
 @pytest.mark.django_db
 def test_authenticated_unauthorized_user_admin_task_view(client, make_task, make_user, get_password):
@@ -517,4 +516,3 @@ def test_unauthenticated_authorized_user_delete_task_view(client, make_task, mak
     assert response.status_code == 302 and deleted_task == False and redirect_url_name == 'login'
 
 
-"""
